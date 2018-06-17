@@ -1,0 +1,79 @@
+{% import "bootstrap/wtf.html" as wtf %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/editormd.min.css') }}">
+
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='admin/js/editormd.min.js') }}"></script>
+    <title>Admin</title>
+</head>
+<body>
+<nav class="navbar navbar-default  navbar-static-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" onclick="location.reload(true);">Admin</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="row">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'message' %}
+                        <div class="alert alert-warning" role="alert">{{ message }}</div>
+                    {% else %}
+                        <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <div class="row">
+        <div class="col-md-12" id="content">
+            <div class="row">
+                {{ wtf.quick_form(form, action="/admin/", method="post", extra_classes=None, role="form", form_type="baisc", enctype="multipart/form-data", button_map={}) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script language="JavaScript">
+    $(document).ready(function () {
+        $('#text').wrap("<div id='editormd'></div>");
+        $(function () {
+            var editor = editormd("editormd", {
+                path: "{{ url_for('static', filename='admin/lib/') }}",
+                height: 740,
+                syncScrolling: "single",
+
+                imageUpload: true,
+                imageFormats: ["jpg", "png", "gif"],
+                imageUploadURL: "{{ url_for("admin.editormd_image_upload") }}"
+
+            });
+
+
+        });
+    });
+</script>
+
+</body>
+</html>
+
+

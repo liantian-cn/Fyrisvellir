@@ -1,0 +1,9 @@
+Flask==0.12.3
+Werkzeug<0.13.0,>=0.12.0
+gae-pytz
+flask-wtf
+flask-bootstrap
+markdown
+python-slugify
+wtforms
+GoogleAppEngineCloudStorageClient

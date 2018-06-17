@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: gae-pytz
+Version: 2016.3
+Summary: A version of pytz for Django on Google App Engine.
+Home-page: https://github.com/potatolondon/gae-pytz/
+Author: Stuart Bishop
+Author-email: stuart@stuartbishop.net
+License: MIT
+Platform: any
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+
+UNKNOWN
+
+

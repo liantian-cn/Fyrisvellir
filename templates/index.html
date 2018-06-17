@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ config.SITE_NAME }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+
+<div class="header">
+    <div class="header-main">
+        <div class="headerlogo">
+            <a href="/">{{ config.SITE_NAME }}</a>
+        </div>
+        <div class="headermenu">
+            <ul>
+            {% for lang in config.Language_list %}
+                <li><a href="{{ request.scheme }}://{{ lang[0] }}{{ config.domain }}/" title="ToolBox">{{ lang[1] }}</a></li>
+            {% endfor %}
+            <li><a href="https://translate.googleusercontent.com/translate_c?hl={{ locale }}&u={{ request.scheme }}://default{{ config.domain }}/" title="ToolBox">Google Translate</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="content post entry ">
+   {{ text|md|safe }}
+</div>
+
+
+<div class="footer">
+    <p> &copy; {{ now.year }} {{ config.AUTHOR }}, All Rights Reserved.</p>
+</div>
+
+
+</body>
+</html>
+
+

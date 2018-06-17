@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="QR Code Generator">
+    <meta name="Author" content="Lien Tian">
+    <meta charset="UTF-8">
+    <title>中文簡繁轉換</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        pre {
+            white-space: pre-wrap; /* Since CSS 2.1 */
+            white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-main">
+        <div class="headerlogo">
+            <a href="/">中文簡繁轉換</a>
+        </div>
+        <div class="headermenu">
+            <ul>
+                <li><a href="https://liantian.me/" title="ToolBox">LIANTIAN&#39;S LOG</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="content post entry ">
+    <pre>{{ result }}</pre>
+</div>
+
+
+<div class="footer">
+    <p><a href="https://github.com/liantian-cn/Fornsigtuna">Source Code</a></p>
+    <p> &copy; 2010-2018 liantian.me, All Rights Reserved.</p>
+</div>
+
+
+</body>
+</html>
+
+
