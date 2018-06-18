@@ -25,23 +25,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import io
 import json
-import markdown
-from datetime import datetime
-from google.appengine.api import urlfetch
-from google.appengine.api import memcache
 import urllib
-from models import Post
+from datetime import datetime
+import base62
 
-from flask import Flask, request, jsonify, make_response, render_template
+from google.appengine.api import memcache
+from google.appengine.api import urlfetch
+from google.appengine.ext import ndb
+
+import markdown
+from flask import Flask, request, render_template, redirect, send_file
+from models import Post, Attachment
 
 app = Flask(__name__)
-app.config["SITE_NAME"] = u"SITE_NAME"
-app.config["AUTHOR"] = u"AUTHOR"
-app.config["domain"] = ".DOMAIN"
-app.debug = True
+app.debug = False
 
-API_URL = "https://fornsigtuna.appspot.com/api"
+ZH_CONV_API_URL = "https://fornsigtuna.appspot.com/api"
 
 app.config["Language_list"] = [
     ("zh-tw", u"正體中文（台湾）"),
@@ -72,11 +73,10 @@ def page_not_found(e):
 
 
 def zh_conv(text, target_lang):
-    form_data = urllib.urlencode({"text": text, "lang": target_lang})
+    form_data = urllib.urlencode({"text": text.encode("utf-8"), "lang": target_lang})
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     result = urlfetch.fetch(
-        url='https://zh-conv.liantian.me/api',
-        # url=API_URL,
+        url=ZH_CONV_API_URL,
         payload=form_data,
         method=urlfetch.POST,
         headers=headers)
@@ -90,14 +90,34 @@ def index():
 
     acc_lang = request.headers.get('Accept-Language', "en").split(",")[0]
     sub_domain = request.headers['Host'].split(".")[0]
-    if sub_domain == "default":
-        text = post.text
-    elif sub_domain in LANG_LIST:
+    if sub_domain in LANG_LIST:
         text = memcache.get(sub_domain)
         if text is None:
             text = zh_conv(post.text, sub_domain)
-            memcache.add(key=sub_domain, value=text, time=86400)
+            memcache.add(key=sub_domain, value=text, time=3600)
     else:
+        if acc_lang in LANG_LIST:
+            return redirect("{0}://{1}{2}".format(request.scheme, acc_lang, post.domain), code=302)
         text = post.text
+    return render_template("index.html", text=text, post=post)
 
-    return render_template("index.html", text=text)
+
+@app.route('/att/<key>/<filename>', methods=['GET'])
+def download(key, filename):
+    if request.if_modified_since:
+        return "HTTP_304_NOT_MODIFIED", 304
+    memcache_key = 'download_{}'.format(key)
+    data = memcache.get(memcache_key)
+    if data is None:
+        int_key = base62.decode(key)
+        doc = ndb.Key(Attachment, int_key).get()
+        data = send_file(io.BytesIO(doc.file),
+                         mimetype=doc.mime_type,
+                         as_attachment=True,
+                         attachment_filename=doc.filename.encode('utf-8'),
+                         add_etags=True,
+                         cache_timeout=86400 * 365,
+                         conditional=True,
+                         last_modified=doc.created)
+        memcache.add(memcache_key, data, 86400 * 30)
+    return data

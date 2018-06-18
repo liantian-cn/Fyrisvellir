@@ -1,4 +1,4 @@
-application: fornsigtuna
+application: fyrisvellir
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -31,3 +31,6 @@ skip_files:
     - \.idea
     - (.*)\.pyc
 
+libraries:
+- name: PIL
+  version: "1.1.7"

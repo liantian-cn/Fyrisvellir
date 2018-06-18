@@ -2,7 +2,7 @@
 <html lang="{{ locale }}">
 <head>
     <meta charset="UTF-8">
-    <title>{{ config.SITE_NAME }}</title>
+    <title>{{ post.site_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 </head>
@@ -11,14 +11,14 @@
 <div class="header">
     <div class="header-main">
         <div class="headerlogo">
-            <a href="/">{{ config.SITE_NAME }}</a>
+            <a href="/">{{ post.site_name }}</a>
         </div>
         <div class="headermenu">
             <ul>
             {% for lang in config.Language_list %}
-                <li><a href="{{ request.scheme }}://{{ lang[0] }}{{ config.domain }}/" title="ToolBox">{{ lang[1] }}</a></li>
+                <li><a href="{{ request.scheme }}://{{ lang[0] }}{{ post.domain }}/" title="ToolBox">{{ lang[1] }}</a></li>
             {% endfor %}
-            <li><a href="https://translate.googleusercontent.com/translate_c?hl={{ locale }}&u={{ request.scheme }}://default{{ config.domain }}/" title="ToolBox">Google Translate</a></li>
+            <li><a href="https://ssl.microsofttranslator.com/bv.aspx?to={{ locale }}&a={{ request.scheme }}://default{{ post.domain }}/" title="ToolBox">Translate to {{ locale|upper }}</a></li>
             </ul>
         </div>
     </div>
@@ -30,7 +30,7 @@
 
 
 <div class="footer">
-    <p> &copy; {{ now.year }} {{ config.AUTHOR }}, All Rights Reserved.</p>
+    <p> &copy; {{ now.year }} {{ post.author }}, All Rights Reserved.</p>
 </div>
 
 

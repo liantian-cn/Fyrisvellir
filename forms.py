@@ -25,25 +25,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from datetime import datetime, date
-
-from flask import request
 from flask_wtf.form import FlaskForm
-from google.appengine.ext import ndb
-
-from wtforms.fields import StringField, SelectField, TextAreaField, BooleanField, SubmitField
-from wtforms.fields.html5 import IntegerField
-from wtforms.validators import DataRequired, Regexp
-from wtforms.widgets import TextInput, CheckboxInput
-from wtforms.widgets.html5 import NumberInput
-
-from main import app
-
 from models import Post
+from wtforms.fields import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, Regexp, Length
 
 
 class PostForm(FlaskForm, object):
     text = TextAreaField(label=u"内容文字", validators=[DataRequired()], description=u"使用兼容于Github的Markdown語法。")
+    site_name = StringField(label=u"站點名稱", validators=[DataRequired(), Length(max=20)])
+    author = StringField(label=u"作者", validators=[DataRequired(), Length(max=20)])
+    domain = StringField(label=u"根域名", validators=[Regexp(r'^[a-zA-Z\d-]{,63}(\.[a-zA-Z\d-]{,63})*$')])
     submit = SubmitField(label=u"修改")
 
     def __init__(self, obj=None, **kwargs):
@@ -56,4 +48,7 @@ class PostForm(FlaskForm, object):
         else:
             post = self.obj
         post.text = self.text.data
+        post.site_name = self.site_name.data
+        post.author = self.author.data
+        post.domain = self.domain.data.encode("utf-8")
         post.put()

@@ -25,30 +25,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+import mimetypes
 import random
 import string
-import mimetypes
-import os
-import urllib
-from datetime import datetime
+import base62
 
-import cloudstorage
-from flask import flash
-from flask import render_template, request, redirect, url_for, jsonify
-from google.appengine.api import app_identity
-from google.appengine.api import images
-from google.appengine.api import memcache
-from google.appengine.datastore.datastore_query import Cursor
-from google.appengine.ext import blobstore
-from google.appengine.ext import ndb
-from slugify import slugify
+# from google.appengine.api import images
+from google.appengine.runtime.apiproxy_errors import RequestTooLargeError
 
-from forms import PostForm
-from models import Post
-
-from flask import Flask, request, jsonify, make_response, render_template
+from flask import Flask, request, jsonify, render_template, url_for
 from flask_bootstrap import Bootstrap
+from forms import PostForm
+from models import Post, Attachment
 
 app = Flask(__name__)
 app.debug = True
@@ -74,23 +62,27 @@ def editormd_image_upload():
     if file.filename == '':
         return jsonify({"success": 0, "message": u"No selected file"})
     if file:
-        directory = "upload/{0}".format(datetime.now().strftime("%Y%m%d/%H"))
-        bucket_name = os.environ.get(
-            'BUCKET_NAME', app_identity.get_default_gcs_bucket_name())
-        bucket = '/' + bucket_name
-        filename = "{0}/{3}/{1}.{2}".format(bucket, slugify(file.filename.rsplit('.', 1)[0]).replace("-", "_"), file.filename.rsplit('.', 1)[1], directory)
-        content_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
-        write_retry_params = cloudstorage.RetryParams(backoff_factor=1.1)
-        gcs_file = cloudstorage.open(filename,
-                                     'w',
-                                     content_type=content_type,
-                                     options={'x-goog-acl': 'public-read'},
-                                     retry_params=write_retry_params)
-        gcs_file.write(file.read())
-        gcs_file.close()
-        gs = "/gs{0}".format(filename)
-        blob_key = blobstore.create_gs_key(gs)
-        url = images.get_serving_url(blob_key, size=app.config["SITE_POST_IMG_WIDTH"], crop=False, secure_url=True)
+        filename = file.filename
+        mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+        att = Attachment()
+        att.filename = filename
+        att.mime_type = mime_type
+        f = file.read()
+        if mime_type in ('image/jpeg', 'image/png', 'image/gif'):
+            # f = images.im_feeling_lucky(f)
+            pass
+        att.file = f
+
+        try:
+            att_key = att.put()
+        except RequestTooLargeError:
+            return jsonify({"success": 0, "message": u"RequestTooLargeError"})
+        url = url_for("download", key=base62.encode(att_key.integer_id()), filename=filename)
         return jsonify({"success": 1, "message": u"No allowed_file", "url": url})
 
     return jsonify({"success": 0, "message": u"No allowed_file"})
+
+
+@app.route('/att/<key>/<filename>', methods=['GET'], endpoint="download")
+def download(key, filename):
+    return "None"
